@@ -5,7 +5,7 @@ interface AuthState {
   user: {
     id: string;
     username: string;
-    roles: string;
+    role: string;
     tokens?: string;
   } | null;
   loading: boolean;

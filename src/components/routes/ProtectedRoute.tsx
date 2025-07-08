@@ -1,7 +1,6 @@
 import React, { type ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import featureFlags from '../configs/featureFlags';
 
 interface ProtectedRouteProps {
     allowedRoles?: string[];
@@ -10,10 +9,6 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, children }) => {
     const { isAuthenticated, user, loading } = useAuth();
-
-    if (!featureFlags.enableAuthentication) {
-        return <div>{children}</div>
-    }
 
     // ⏳ Trạng thái loading
     if (loading) return <div>Loading authentication...</div>;
@@ -24,7 +19,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, children 
     }
 
     // ❌ Có login, nhưng không có quyền
-    const hasRole = allowedRoles ? allowedRoles.some(role => user.roles.includes(role)) : true;
+    const hasRole = allowedRoles ? allowedRoles.some(role => user.role.includes(role)) : true;
     if (!hasRole) {
         return <Navigate to="/unauthorized" replace />;
     }

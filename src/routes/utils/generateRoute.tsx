@@ -1,7 +1,7 @@
-import RouteAuthenticator from "../../components/RouteAuthenticator";
 import { Route } from "react-router-dom";
 import type { RouteType } from "../config";
 import type { ReactNode } from "react";
+import RouteAuthenticator from "../../components/routes/RouteAuthenticator";
 
 
 export const generateRoute = (routes: RouteType[]): ReactNode => {
