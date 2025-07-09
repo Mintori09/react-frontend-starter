@@ -1,43 +1,47 @@
 import { useState } from "react";
 import { AuthForm } from "./components/AuthForm";
 import { api } from "../../utils/api";
+import axios from "axios";
 
 const AuthPage = () => {
     const [mode, setMode] = useState<"login" | "register">("login");
+    const [error, setError] = useState<string>("")
 
-    const handleSubmit = async (data: { email: string; password: string }) => {
+    const handleSubmit = async (payload: { email: string; password: string }) => {
         const endpoint =
             mode === "login"
                 ? "/auth/login"
                 : "/auth/register";
 
         try {
-            // const response = await fetch(endpoint, {
-            //     method: "POST",
-            //     headers: {
-            //         "Content-Type": "application/json",
-            //     },
-            //     credentials: "include",
-            //     body: JSON.stringify(data),
-            // });
-            const response = await api.post(endpoint, JSON.stringify(data))
+            const response = await api.post(endpoint, payload);
+            setError(response.data)
 
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.message || "Request failed");
+            // alert('✅ Success:\n' + JSON.stringify(response.data));
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                const message = error.response?.data?.message;
+                if (message) {
+                    setError(message.split('\n').join('\n'));
+                } else {
+                    setError("Đã có lỗi xảy ra từ máy chủ.");
+                }
+            } else if (error instanceof Error) {
+                setError(error.message);
+            } else {
+                setError("Lỗi không xác định.");
             }
-
-            const result = await response.json();
-            console.log("✅ Success:", result.data);
-        } catch (err) {
-            console.error("❌ Error:", err);
-            alert("Login/Register failed");
         }
     };
 
     return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
             <div className="w-full max-w-md">
+                {error && (
+                    <p className="text-red-600 mt-2 text-sm whitespace-pre-line">
+                        {error}
+                    </p>
+                )}
                 <AuthForm mode={mode} onSubmit={handleSubmit} />
                 <div className="mt-4 text-center">
                     {mode === "login" ? (

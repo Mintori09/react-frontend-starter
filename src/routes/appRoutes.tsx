@@ -1,7 +1,7 @@
 import HomePage from "../pages/HomePage/HomePage";
 import DashboardLayout from "../pages/Layout/DashboardLayout";
 import MainLayout from "../pages/Layout/MainLayout";
-import LoginPage from "../pages/LoginPage/LoginPage";
+import LoginPage from "../pages/LoginPage/AuthPage.tsx";
 
 import type { RouteType } from "./config";
 
