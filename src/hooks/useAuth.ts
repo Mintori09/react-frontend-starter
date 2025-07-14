@@ -25,6 +25,7 @@ export const useAuth = () => {
   const logoutUser = useCallback(async () => {
     await api.get('/auth/logout');
     dispatch(logout());
+    window.location.href = '/home';
   }, [dispatch]);
 
   return useMemo(
@@ -33,7 +34,7 @@ export const useAuth = () => {
       user,
       login,
       logout: logoutUser,
-      isAuthReady: user !== null, // dùng nếu cần biết đã check xong
+      isAuthReady: user !== null,
     }),
     [isAuthenticated, user, login, logoutUser],
   );

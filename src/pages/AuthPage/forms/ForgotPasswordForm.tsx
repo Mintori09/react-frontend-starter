@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Button from "../../../components/elements/Button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import InputField from "../../../components/elements/InputField";
 import { toast } from "react-hot-toast";
 import { api } from "../../../utils/api";
@@ -10,16 +10,15 @@ import { getErrorMessage } from "../../../utils/error";
 export const ForgotPasswordForm = () => {
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState<boolean>(false)
+    const navigate = useNavigate()
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             setLoading(true);
             const response = await api.post('/auth/forgot-password', { email });
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-
+            toast.success(response.message)
+            navigate("/home")
         } catch (error) {
             setLoading(false)
             toast.error(getErrorMessage(error))

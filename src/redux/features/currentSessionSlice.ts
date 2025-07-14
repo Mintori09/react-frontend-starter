@@ -16,7 +16,6 @@ const initialState: AuthState = {
   user: null,
   loading: false,
 };
-
 export const authSlice = createSlice({
   name: 'auth',
   initialState,

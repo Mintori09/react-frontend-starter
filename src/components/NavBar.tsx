@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "../hooks/useAuth"; // nếu đã có
@@ -7,9 +7,13 @@ const navItems = [
     { to: "/", label: "Home" },
     { to: "/about", label: "About" },
     { to: "/contact", label: "Contact" },
+    { to: "/users", label: "Users" },
 ];
 
 const Navbar = () => {
+    useEffect(() => {
+
+    }, [])
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { isAuthenticated, user, logout } = useAuth();
 

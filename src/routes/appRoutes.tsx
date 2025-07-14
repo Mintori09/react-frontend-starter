@@ -17,6 +17,7 @@ import ContactPage from "../pages/HomePage/ContactPage";
 import { Contact } from "lucide-react";
 import UnauthorizedPage from "../pages/HomePage/UnauthorizedPage";
 import InformationPage from "../pages/UsersPage/InformationPage";
+import ListUsers from "../pages/UserPage/ListUsers";
 
 export const rootRoutes: RouteType[] = [
     {
@@ -74,6 +75,13 @@ export const rootRoutes: RouteType[] = [
                 path: "info",
                 state: "info",
                 element: <InformationPage />,
+                allowedRoles: ["admin"],
+                protected: true
+            },
+            {
+                path: "users",
+                state: "users",
+                element: <ListUsers />,
                 allowedRoles: ["admin"],
                 protected: true
             }
