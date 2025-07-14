@@ -2,6 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout, setAuthenticated, setUser } from '../redux/features/currentSessionSlice';
 import type { RootState } from '../redux/store';
+import { api } from '../utils/api';
 
 type User = {
   id: string;
@@ -21,7 +22,8 @@ export const useAuth = () => {
     [dispatch],
   );
 
-  const logoutUser = useCallback(() => {
+  const logoutUser = useCallback(async () => {
+    await api.get('/auth/logout');
     dispatch(logout());
   }, [dispatch]);
 

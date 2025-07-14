@@ -10,7 +10,6 @@ const LoginPage = lazy(() => import("../pages/AuthPage/pages/LoginPage"));
 const RegisterPage = lazy(() => import("../pages/AuthPage/pages/RegisterPage"));
 const ForgotPasswordPage = lazy(() => import("../pages/AuthPage/pages/ForgotPasswordPage"));
 const ResetPasswordPage = lazy(() => import("../pages/AuthPage/pages/ResetPasswordPage"));
-const VerifyPasswordPage = lazy(() => import("../pages/AuthPage/pages/VerifyPasswordPage"));
 
 
 import type { RouteType } from "./config";
@@ -56,11 +55,6 @@ export const rootRoutes: RouteType[] = [
                 path: "reset-password",
                 state: "reset-password",
                 element: <ResetPasswordPage />
-            },
-            {
-                path: "verify-password",
-                state: "verify-password",
-                element: <VerifyPasswordPage />
             },
             {
                 path: "about",
