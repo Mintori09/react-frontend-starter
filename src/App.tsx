@@ -1,13 +1,40 @@
 import { BrowserRouter, Routes } from 'react-router-dom'
 import { routes } from './routes'
+import { useEffect, useState } from 'react';
+import { api } from './utils/api';
+import type { FilterUser } from './types/User';
+import { useAuth } from './hooks/useAuth';
+import Spinner from './components/Spinner';
 
 function App() {
+    const [loading, setLoading] = useState<boolean>(false)
+    const { login } = useAuth()
+
+    useEffect(() => {
+        const init = async () => {
+            try {
+                setLoading(true);
+
+                const res = await api.get("/users/me");
+                const data: FilterUser = res.data.user;
+
+                login(data);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        init()
+    }, [login])
+
     return (
-        <BrowserRouter>
-            <Routes>
-                {routes}
-            </Routes>
-        </BrowserRouter>
+        loading ? <Spinner /> :
+            <BrowserRouter>
+                <Routes>
+                    {routes}
+                </Routes>
+            </BrowserRouter>
     )
 }
 

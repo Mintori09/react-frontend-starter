@@ -1,9 +1,23 @@
-import HomePage from "../pages/HomePage/HomePage";
-import DashboardLayout from "../pages/Layout/DashboardLayout";
-import MainLayout from "../pages/Layout/MainLayout";
-import LoginPage from "../pages/LoginPage/AuthPage.tsx";
+import { lazy } from "react";
+
+// Layout
+import MainLayout from "../components/layouts/MainLayout";
+
+// Lazy-loaded Pages
+const HomePage = lazy(() => import("../pages/HomePage/HomePage"));
+const AboutPage = lazy(() => import("../pages/HomePage/AboutPage"));
+const LoginPage = lazy(() => import("../pages/AuthPage/pages/LoginPage"));
+const RegisterPage = lazy(() => import("../pages/AuthPage/pages/RegisterPage"));
+const ForgotPasswordPage = lazy(() => import("../pages/AuthPage/pages/ForgotPasswordPage"));
+const ResetPasswordPage = lazy(() => import("../pages/AuthPage/pages/ResetPasswordPage"));
+const VerifyPasswordPage = lazy(() => import("../pages/AuthPage/pages/VerifyPasswordPage"));
+
 
 import type { RouteType } from "./config";
+import ContactPage from "../pages/HomePage/ContactPage";
+import { Contact } from "lucide-react";
+import UnauthorizedPage from "../pages/HomePage/UnauthorizedPage";
+import InformationPage from "../pages/UsersPage/InformationPage";
 
 export const rootRoutes: RouteType[] = [
     {
@@ -16,22 +30,65 @@ export const rootRoutes: RouteType[] = [
                 state: "home",
             },
             {
-                path: "*", // fallback
+                path: "*",
                 element: <HomePage />,
                 state: "notFound",
             },
-        ],
-    },
-    {
-        element: <DashboardLayout />,
-        state: "dashboardLayout",
-        child: [
             {
                 path: "login",
                 element: <LoginPage />,
                 state: "login",
+                protected: false
             },
+            {
+                path: "forgot-password",
+                state: "forgot password",
+                element: <ForgotPasswordPage />
+
+            },
+            {
+                path: "register",
+                state: "register",
+                element: <RegisterPage />,
+                protected: false
+            },
+            {
+                path: "reset-password",
+                state: "reset-password",
+                element: <ResetPasswordPage />
+            },
+            {
+                path: "verify-password",
+                state: "verify-password",
+                element: <VerifyPasswordPage />
+            },
+            {
+                path: "about",
+                state: "about",
+                element: <AboutPage />
+            },
+            {
+                path: "contact",
+                state: "contact",
+                element: <ContactPage />,
+                props: {
+                    displayText: "Contact",
+                    icon: <Contact />
+                }
+            },
+            {
+                path: "info",
+                state: "info",
+                element: <InformationPage />,
+                allowedRoles: ["admin"],
+                protected: true
+            }
         ],
+    },
+    {
+        path: "unauthorized",
+        state: "unauthorized",
+        element: <UnauthorizedPage />,
     },
 ];
 

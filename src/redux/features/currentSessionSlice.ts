@@ -4,7 +4,7 @@ interface AuthState {
   isAuthenticated: boolean;
   user: {
     id: string;
-    username: string;
+    name: string;
     role: string;
     tokens?: string;
   } | null;

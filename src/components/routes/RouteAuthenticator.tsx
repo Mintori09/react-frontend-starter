@@ -1,45 +1,70 @@
-import React, { type ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
-import type { RouteType } from '../../routes/config';
-import { useAuth } from '../../hooks/useAuth';
-import PageWrapper from '../../pages/Layout/Wrapper';
+import React, { type ReactNode } from "react";
+import { Navigate } from "react-router-dom";
+import type { RouteType } from "../../routes/config";
+import { useAuth } from "../../hooks/useAuth";
+import PageWrapper from "../layouts/Wrapper";
 
 interface RouteAuthenticatorProps {
     route: RouteType;
     children: ReactNode;
 }
 
-const RouteAuthenticator: React.FC<RouteAuthenticatorProps> = ({ route, children }) => {
-    const { isAuthenticated, user, loading } = useAuth();
+const RouteAuthenticator: React.FC<RouteAuthenticatorProps> = ({
+    route,
+    children,
+}) => {
+    const { isAuthenticated, user } = useAuth();
 
-    // ⏳ Trạng thái loading
-    if (loading) return <div>Loading authentication...</div>;
-
-    // Handle protected routes
+    // ✅ Route yêu cầu đăng nhập
     if (route.protected === true) {
         // ❌ Chưa đăng nhập
         if (!isAuthenticated || !user) {
             return <Navigate to="/unauthorized" replace />;
         }
 
-        // ❌ Có login, nhưng không có quyền
-        const hasRole = route.allowedRoles ? route.allowedRoles.some(role => user.role.includes(role)) : true;
+        // ❌ Đã đăng nhập nhưng sai quyền
+        const hasRole = route.allowedRoles
+            ? route.allowedRoles.includes(user.role)
+            : true;
+
         if (!hasRole) {
             return <Navigate to="/unauthorized" replace />;
         }
 
-        // ✅ Đủ điều kiện: render bình thường
-        return <PageWrapper state={route.child ? undefined : route.state}>{children}</PageWrapper>;
+        // ✅ Đủ điều kiện: Cho phép truy cập
+        return (
+            <PageWrapper state={route.child ? undefined : route.state}>
+                {children}
+            </PageWrapper>
+        );
     }
 
-    if (!route.protected) {
-        if (isAuthenticated && route.path === "/login") {
+    // ✅ Route công khai
+    if (route.protected === false) {
+        // ❌ Nếu đã đăng nhập mà vào /login hoặc /register → redirect
+        if (
+            isAuthenticated &&
+            (route.path === "login" || route.path === "register")
+        ) {
             return <Navigate to="/dashboard" replace />;
         }
-        return <PageWrapper state={route.child ? undefined : route.state}>{children}</PageWrapper>;
+
+        // ✅ Công khai, tiếp tục render
+        return (
+            <PageWrapper state={route.child ? undefined : route.state}>
+                {children}
+            </PageWrapper>
+        );
     }
 
-    return <PageWrapper state={route.child ? undefined : route.state}>{children}</PageWrapper>;
+    // ✅ Trường hợp không khai báo protected → coi như công khai
+    return (
+        <PageWrapper state={route.child ? undefined : route.state}>
+            {children}
+        </PageWrapper>
+    );
 };
 
 export default RouteAuthenticator;
+
+

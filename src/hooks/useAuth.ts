@@ -1,29 +1,38 @@
+import { useCallback, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout, setAuthenticated, setUser } from '../redux/features/currentSessionSlice';
 import type { RootState } from '../redux/store';
 
 type User = {
   id: string;
-  username: string;
+  name: string;
   role: string;
 };
 
 export const useAuth = () => {
   const dispatch = useDispatch();
-  const auth = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
 
-  const login = async (userData: User) => {
-    dispatch(setUser(userData));
-    dispatch(setAuthenticated(true));
-  };
+  const login = useCallback(
+    (userData: User) => {
+      dispatch(setUser(userData));
+      dispatch(setAuthenticated(true));
+    },
+    [dispatch],
+  );
 
-  const signOut = () => {
+  const logoutUser = useCallback(() => {
     dispatch(logout());
-  };
+  }, [dispatch]);
 
-  return {
-    ...auth,
-    login,
-    logout: signOut,
-  };
+  return useMemo(
+    () => ({
+      isAuthenticated,
+      user,
+      login,
+      logout: logoutUser,
+      isAuthReady: user !== null, // dùng nếu cần biết đã check xong
+    }),
+    [isAuthenticated, user, login, logoutUser],
+  );
 };
