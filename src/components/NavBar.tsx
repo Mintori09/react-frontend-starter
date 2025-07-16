@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "../hooks/useAuth"; // nếu đã có
+import { icon } from "../assets/asset";
 
 const navItems = [
     { to: "/", label: "Home" },
@@ -27,8 +28,14 @@ const Navbar = () => {
         <nav className="bg-white border-b shadow-sm sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
-                    <div className="flex-shrink-0 text-xl font-bold text-blue-600">
-                        <Link to="/">MyApp</Link>
+                    <div className="flex items-center">
+                        <Link
+                            to="/"
+                            className="inline-flex items-center gap-2 text-xl font-bold text-blue-600"
+                        >
+                            <img src={icon} alt="MyApp icon" className="w-7 h-7 right-3" />
+                            <span>MyApp</span>
+                        </Link>
                     </div>
 
                     {/* Desktop menu */}
