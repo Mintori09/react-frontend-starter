@@ -1,54 +1,64 @@
-import { MainErrorFallback } from "@/components/error/main"
-import { Spinner } from "@/components/ui/spinner"
+import { MainErrorFallback } from '@/components/error/main';
+import { Spinner } from '@/components/ui/spinner';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { QueryClientProvider, QueryClient } from "@tanstack/react-query"
-import React, { useState } from "react"
-import { ErrorBoundary } from "react-error-boundary"
-import { HelmetProvider } from "react-helmet-async"
-import { Notifications } from "@/components/ui/notifications";
-import { AuthLoader } from "@/lib/auth-provider";
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import React, { useState } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
+import { HelmetProvider } from 'react-helmet-async';
+import { Notifications } from '@/components/ui/notifications';
+import { AuthLoader } from '@/lib/auth-provider';
 
-type AppProviderProps = { 
-    children: React.ReactNode
-}
+import { ThemeProvider } from 'next-themes';
 
-export const AppProvider = ({children} : AppProviderProps ) => { 
+type AppProviderProps = {
+    children: React.ReactNode;
+};
+
+export const AppProvider = ({ children }: AppProviderProps) => {
     const [queryClient] = useState(
-        () => new QueryClient({
-            defaultOptions: {
-                queries: {
-                    retry: false,
-                    refetchOnWindowFocus: false,
-                    throwOnError: true,
-                }
-            }
-        })
-    )
+        () =>
+            new QueryClient({
+                defaultOptions: {
+                    queries: {
+                        retry: false,
+                        refetchOnWindowFocus: false,
+                        throwOnError: true,
+                    },
+                },
+            }),
+    );
 
     return (
         <React.Suspense
-        fallback={
+            fallback={
                 <div className="flex h-screen w-screen items-center justify-center">
-                <Spinner size="lg" />
+                    <Spinner size="lg" />
                 </div>
-            }>
+            }
+        >
             <ErrorBoundary FallbackComponent={MainErrorFallback}>
-                <HelmetProvider >
+                <HelmetProvider>
                     <QueryClientProvider client={queryClient}>
-                        {import.meta.env.DEV && <ReactQueryDevtools/>}
-                        <Notifications/>
-                        <AuthLoader
-                            renderLoading={() => (
-                                <div className="flex h-screen w-screen items-center justify-center">
-                                    <Spinner size="lg" />
-                                </div>
-                            )}
+                        <ThemeProvider
+                            attribute="class"
+                            defaultTheme="system"
+                            enableSystem
                         >
-                            {children}
-                        </AuthLoader>
+                            {import.meta.env.DEV && <ReactQueryDevtools />}
+                            <Notifications />
+                            <AuthLoader
+                                renderLoading={() => (
+                                    <div className="flex h-screen w-screen items-center justify-center">
+                                        <Spinner size="lg" />
+                                    </div>
+                                )}
+                            >
+                                {children}
+                            </AuthLoader>
+                        </ThemeProvider>
                     </QueryClientProvider>
                 </HelmetProvider>
             </ErrorBoundary>
         </React.Suspense>
-    )
-}
+    );
+};

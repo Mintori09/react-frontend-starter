@@ -42,7 +42,7 @@ function authRequestInterceptor(config: InternalAxiosRequestConfig) {
 }
 
 export const api = Axios.create({
-    baseURL: `${env.API_URL}/api/v1`,
+    baseURL: `${env.API_URL.replace(/\/$/, '')}/api/v1`,
 });
 
 api.interceptors.request.use(authRequestInterceptor);
@@ -54,11 +54,17 @@ api.interceptors.response.use(
         return response.data;
     },
     async (error: AxiosError) => {
-        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+        const originalRequest = error.config as InternalAxiosRequestConfig & {
+            _retry?: boolean;
+        };
         const data = error.response?.data as { message?: string } | undefined;
         const message = data?.message || error.message;
 
-        if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== '/auth/refresh') {
+        if (
+            error.response?.status === 401 &&
+            !originalRequest._retry &&
+            originalRequest.url !== '/auth/refresh'
+        ) {
             if (isRefreshing) {
                 return new Promise<string | null>((resolve, reject) => {
                     failedQueue.push({ resolve, reject });
@@ -78,7 +84,9 @@ api.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                const response = await api.post('/auth/refresh') as { accessToken: string };
+                const response = (await api.post('/auth/refresh')) as {
+                    accessToken: string;
+                };
                 const { accessToken: newToken } = response;
                 accessToken = newToken;
                 processQueue(null, newToken);

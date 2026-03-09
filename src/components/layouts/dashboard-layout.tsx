@@ -1,6 +1,7 @@
-import { Home, PanelLeft, Users, User2 } from 'lucide-react';
+import { Home, PanelLeft, Users, User2, Sun, Moon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { NavLink, useNavigate, useNavigation, useLocation } from 'react-router';
+import { useTheme } from 'next-themes';
 
 import logo from '@/assets/react.svg';
 import { Button } from '@/components/ui/button';
@@ -67,6 +68,35 @@ const Progress = () => {
             className="fixed left-0 top-0 h-1 bg-blue-500 transition-all duration-200 ease-in-out z-[9999]"
             style={{ width: `${progress}%` }}
         ></div>
+    );
+};
+
+const ThemeToggle = () => {
+    const { theme, setTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
+        return <div className="size-8" aria-hidden="true" />;
+    }
+
+    return (
+        <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        >
+            {theme === 'dark' ? (
+                <Sun className="size-5" />
+            ) : (
+                <Moon className="size-5" />
+            )}
+            <span className="sr-only">Toggle theme</span>
+        </Button>
     );
 };
 
@@ -167,6 +197,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             </nav>
                         </DrawerContent>
                     </Drawer>
+                    <div className="flex items-center gap-4">
+                        <ThemeToggle />
+                    </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button

@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useLogin } from '@/lib/auth-provider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +10,9 @@ import { paths } from '@/config/paths';
 import { useMutation } from '@tanstack/react-query';
 import { sendVerificationEmail } from '@/lib/auth';
 import { useNotifications } from '@/components/ui/notifications';
+import { loginInputSchema, type LoginInput } from '@/lib/auth-schemas';
+
+import type { AxiosError } from 'axios';
 
 type LoginFormProps = {
     onSuccess: () => void;
@@ -22,6 +27,14 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
     const [isEmailUnverified, setIsEmailUnverified] = React.useState(false);
     const [unverifiedEmail, setUnverifiedEmail] = React.useState('');
 
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<LoginInput>({
+        resolver: zodResolver(loginInputSchema),
+    });
+
     const resendVerification = useMutation({
         mutationFn: () => sendVerificationEmail(unverifiedEmail),
         onSuccess: (data) => {
@@ -34,24 +47,23 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
         },
     });
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        const email = formData.get('email') as string;
-        const password = formData.get('password') as string;
-
-        login.mutate(
-            { email, password },
-            {
-                onError: (error: any) => {
-                    const data = error.response?.data;
-                    if (error.response?.status === 401 && (data?.message?.includes('verified') || data?.error === 'EmailNotVerified')) {
-                        setIsEmailUnverified(true);
-                        setUnverifiedEmail(email);
-                    }
-                },
-            }
-        );
+    const onSubmit = (data: LoginInput) => {
+        login.mutate(data, {
+            onError: (error: AxiosError) => {
+                const apiData = error.response?.data as {
+                    message?: string;
+                    error?: string;
+                };
+                if (
+                    error.response?.status === 401 &&
+                    (apiData?.message?.includes('verified') ||
+                        apiData?.error === 'EmailNotVerified')
+                ) {
+                    setIsEmailUnverified(true);
+                    setUnverifiedEmail(data.email);
+                }
+            },
+        });
     };
 
     return (
@@ -65,7 +77,8 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
                             </h3>
                             <div className="mt-2 text-sm text-yellow-700">
                                 <p>
-                                    Your email address is not verified. Please check your inbox or click below to resend.
+                                    Your email address is not verified. Please
+                                    check your inbox or click below to resend.
                                 </p>
                             </div>
                             <div className="mt-4">
@@ -75,7 +88,9 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
                                     onClick={() => resendVerification.mutate()}
                                     disabled={resendVerification.isPending}
                                 >
-                                    {resendVerification.isPending ? 'Sending...' : 'Resend Verification'}
+                                    {resendVerification.isPending
+                                        ? 'Sending...'
+                                        : 'Resend Verification'}
                                 </Button>
                             </div>
                         </div>
@@ -83,17 +98,25 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
                 </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="space-y-6"
+                data-testid="login-form"
+            >
                 <div>
                     <Label htmlFor="email">Email Address</Label>
                     <div className="mt-1">
                         <Input
                             id="email"
-                            name="email"
                             type="email"
                             autoComplete="email"
-                            required
+                            {...register('email')}
                         />
+                        {errors.email && (
+                            <p className="mt-1 text-sm text-red-600">
+                                {errors.email.message}
+                            </p>
+                        )}
                     </div>
                 </div>
 
@@ -102,11 +125,15 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
                     <div className="mt-1">
                         <Input
                             id="password"
-                            name="password"
                             type="password"
                             autoComplete="current-password"
-                            required
+                            {...register('password')}
                         />
+                        {errors.password && (
+                            <p className="mt-1 text-sm text-red-600">
+                                {errors.password.message}
+                            </p>
+                        )}
                     </div>
                 </div>
 
@@ -127,17 +154,21 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
                         <div className="w-full border-t border-gray-300" />
                     </div>
                     <div className="relative flex justify-center text-sm">
-                        <span className="bg-white px-2 text-gray-500">
-                            Or
-                        </span>
+                        <span className="bg-white px-2 text-gray-500">Or</span>
                     </div>
                 </div>
 
                 <div className="mt-6 flex flex-col gap-2">
-                    <Link to={paths.auth.register.getHref()} className="text-center">
+                    <Link
+                        to={paths.auth.register.getHref()}
+                        className="text-center"
+                    >
                         Register
                     </Link>
-                    <Link to={paths.auth.forgotPassword.getHref()} className="text-center">
+                    <Link
+                        to={paths.auth.forgotPassword.getHref()}
+                        className="text-center"
+                    >
                         Forgot Password?
                     </Link>
                 </div>
