@@ -1,0 +1,108 @@
+import { useNotifications } from '@/components/ui/notifications';
+import { env } from '@/config/env';
+import Axios, { type InternalAxiosRequestConfig, type AxiosError } from 'axios';
+
+let accessToken: string | null = null;
+let isRefreshing = false;
+
+type PromiseHandler = {
+    resolve: (token: string | null) => void;
+    reject: (error: unknown) => void;
+};
+
+let failedQueue: PromiseHandler[] = [];
+
+const processQueue = (error: unknown, token: string | null = null) => {
+    failedQueue.forEach((prom) => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+
+    failedQueue = [];
+};
+
+export const setAccessToken = (token: string | null) => {
+    accessToken = token;
+};
+
+function authRequestInterceptor(config: InternalAxiosRequestConfig) {
+    if (config.headers) {
+        config.headers.Accept = 'application/json';
+        if (accessToken) {
+            config.headers.Authorization = `Bearer ${accessToken}`;
+        }
+    }
+
+    config.withCredentials = true;
+
+    return config;
+}
+
+export const api = Axios.create({
+    baseURL: `${env.API_URL}/api/v1`,
+});
+
+api.interceptors.request.use(authRequestInterceptor);
+api.interceptors.response.use(
+    (response) => {
+        if (response.data && response.data.accessToken) {
+            accessToken = response.data.accessToken;
+        }
+        return response.data;
+    },
+    async (error: AxiosError) => {
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+        const data = error.response?.data as { message?: string } | undefined;
+        const message = data?.message || error.message;
+
+        if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== '/auth/refresh') {
+            if (isRefreshing) {
+                return new Promise<string | null>((resolve, reject) => {
+                    failedQueue.push({ resolve, reject });
+                })
+                    .then((token) => {
+                        if (originalRequest.headers) {
+                            originalRequest.headers.Authorization = `Bearer ${token}`;
+                        }
+                        return api(originalRequest);
+                    })
+                    .catch((err) => {
+                        return Promise.reject(err);
+                    });
+            }
+
+            originalRequest._retry = true;
+            isRefreshing = true;
+
+            try {
+                const response = await api.post('/auth/refresh') as { accessToken: string };
+                const { accessToken: newToken } = response;
+                accessToken = newToken;
+                processQueue(null, newToken);
+                if (originalRequest.headers) {
+                    originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                }
+                return api(originalRequest);
+            } catch (refreshError) {
+                processQueue(refreshError, null);
+                accessToken = null;
+                return Promise.reject(refreshError);
+            } finally {
+                isRefreshing = false;
+            }
+        }
+
+        if (error.response?.status !== 401) {
+            useNotifications.getState().addNotification({
+                type: 'error',
+                title: 'Error',
+                message,
+            });
+        }
+
+        return Promise.reject(error);
+    },
+);
