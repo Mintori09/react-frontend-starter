@@ -1,12 +1,14 @@
 import { configureAuth } from 'react-query-auth';
-import { setAccessToken } from './api-clients';
+
+import { setAccessToken } from '@/lib/api-clients';
+
 import {
-  getUser,
-  loginWithEmailAndPassword,
-  registerWithEmailAndPassword,
-  logout
-} from './auth';
-import type { LoginInput, RegisterInput } from './auth-schemas';
+    getUser,
+    loginWithEmailAndPassword,
+    registerWithEmailAndPassword,
+    logout,
+} from '../api/auth';
+import type { LoginInput, RegisterInput } from '../types';
 
 const authConfig = {
     userFn: getUser,

@@ -1,33 +1,10 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router';
-import { useUser } from './auth-provider';
+
 import { paths } from '@/config/paths';
 
-export const ROLES = {
-    ADMIN: 'ADMIN',
-    USER: 'USER',
-} as const;
-
-export type RoleTypes = keyof typeof ROLES;
-
-export const POLICIES = () => {
-    return true;
-};
-
-export const useAuthorization = () => {
-    const user = useUser();
-
-    const checkAccess = React.useCallback(
-        ({ allowedRoles }: { allowedRoles: RoleTypes[] }) => {
-            if (allowedRoles && allowedRoles.length > 0 && user.data) {
-                return allowedRoles?.includes(user.data.role);
-            }
-            return true;
-        },
-        [user.data],
-    );
-    return { checkAccess, role: user.data?.role };
-};
+import { useUser } from './auth-provider';
+import { useAuthorization, type RoleTypes } from './authorization-hooks';
 
 type AuthorizationProps = {
     forbiddenFallback?: React.ReactNode;

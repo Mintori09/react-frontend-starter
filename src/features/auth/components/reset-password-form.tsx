@@ -1,12 +1,14 @@
 import * as React from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { Link, useNavigate } from 'react-router';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Link, useNavigate } from 'react-router';
-import { paths } from '@/config/paths';
 import { useNotifications } from '@/components/ui/notifications';
-import { resetPassword } from '@/lib/auth';
+import { paths } from '@/config/paths';
+
+import { resetPassword } from '../api/auth';
 
 type ResetPasswordFormProps = {
     token: string;
@@ -17,7 +19,8 @@ export const ResetPasswordForm = ({ token }: ResetPasswordFormProps) => {
     const navigate = useNavigate();
 
     const mutation = useMutation({
-        mutationFn: (data: { newPassword: string }) => resetPassword(token, data),
+        mutationFn: (data: { newPassword: string }) =>
+            resetPassword(token, data),
         onSuccess: (data) => {
             addNotification({
                 type: 'success',
@@ -85,9 +88,7 @@ export const ResetPasswordForm = ({ token }: ResetPasswordFormProps) => {
             </form>
 
             <div className="mt-6 text-center">
-                <Link to={paths.auth.login.getHref()}>
-                    Back to login
-                </Link>
+                <Link to={paths.auth.login.getHref()}>Back to login</Link>
             </div>
         </div>
     );

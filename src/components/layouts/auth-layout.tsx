@@ -1,8 +1,10 @@
-import { paths } from '@/config/paths';
-import { useUser } from '@/lib/auth-provider';
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
+
 import logo from '@/assets/react.svg';
+import { paths } from '@/config/paths';
+import { useUser } from '@/features/auth';
+
 import { Head } from '../seo';
 import { Link } from '../ui/link';
 

@@ -16,6 +16,8 @@ export type Meta = {
 export type User = Entity<{
     username: string;
     email: string;
+    firstName: string;
+    lastName: string;
     role: 'ADMIN' | 'USER';
 }>;
 

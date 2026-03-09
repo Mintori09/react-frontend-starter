@@ -1,12 +1,14 @@
 import * as React from 'react';
 import { useMutation } from '@tanstack/react-query';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link } from '@/components/ui/link';
-import { paths } from '@/config/paths';
 import { useNotifications } from '@/components/ui/notifications';
-import { forgotPassword } from '@/lib/auth';
+import { paths } from '@/config/paths';
+
+import { forgotPassword } from '../api/auth';
 
 export const ForgotPasswordForm = () => {
     const { addNotification } = useNotifications();
@@ -56,9 +58,7 @@ export const ForgotPasswordForm = () => {
             </form>
 
             <div className="mt-6 text-center">
-                <Link to={paths.auth.login.getHref()}>
-                    Back to login
-                </Link>
+                <Link to={paths.auth.login.getHref()}>Back to login</Link>
             </div>
         </div>
     );

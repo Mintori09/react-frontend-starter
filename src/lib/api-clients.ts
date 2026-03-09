@@ -1,6 +1,8 @@
+import Axios, { type InternalAxiosRequestConfig, type AxiosError } from 'axios';
+
 import { useNotifications } from '@/components/ui/notifications';
 import { env } from '@/config/env';
-import Axios, { type InternalAxiosRequestConfig, type AxiosError } from 'axios';
+import { HttpStatus } from '@/types/http';
 
 let accessToken: string | null = null;
 let isRefreshing = false;
@@ -48,10 +50,11 @@ export const api = Axios.create({
 api.interceptors.request.use(authRequestInterceptor);
 api.interceptors.response.use(
     (response) => {
-        if (response.data && response.data.accessToken) {
-            accessToken = response.data.accessToken;
+        const data = response.data;
+        if (data && data.success && data.data && data.data.accessToken) {
+            accessToken = data.data.accessToken;
         }
-        return response.data;
+        return data?.data || data;
     },
     async (error: AxiosError) => {
         const originalRequest = error.config as InternalAxiosRequestConfig & {
@@ -61,7 +64,7 @@ api.interceptors.response.use(
         const message = data?.message || error.message;
 
         if (
-            error.response?.status === 401 &&
+            error.response?.status === HttpStatus.UNAUTHORIZED &&
             !originalRequest._retry &&
             originalRequest.url !== '/auth/refresh'
         ) {
@@ -103,7 +106,7 @@ api.interceptors.response.use(
             }
         }
 
-        if (error.response?.status !== 401) {
+        if (error.response?.status !== HttpStatus.UNAUTHORIZED) {
             useNotifications.getState().addNotification({
                 type: 'error',
                 title: 'Error',

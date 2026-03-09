@@ -1,14 +1,11 @@
 import { Home, PanelLeft, Users, User2, Sun, Moon } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import React, { useEffect, useState } from 'react';
 import { NavLink, useNavigate, useNavigation, useLocation } from 'react-router';
-import { useTheme } from 'next-themes';
 
 import logo from '@/assets/react.svg';
 import { Button } from '@/components/ui/button';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
-import { paths } from '@/config/paths';
-import { ROLES, useAuthorization } from '@/lib/authorization';
-
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -16,9 +13,11 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Link } from '../ui/link';
-import { useLogout } from '@/lib/auth-provider';
+import { paths } from '@/config/paths';
+import { ROLES, useAuthorization, useLogout } from '@/features/auth';
 import { cn } from '@/lib/utils';
+
+import { Link } from '../ui/link';
 
 type SideNavigationItem = {
     name: string;
@@ -201,7 +200,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         <ThemeToggle />
                     </div>
                     <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
+                        <DropdownMenuTrigger>
                             <Button
                                 variant="outline"
                                 size="icon"

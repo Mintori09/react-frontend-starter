@@ -1,13 +1,23 @@
-import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router';
-import { paths } from '@/config/paths';
-import { ProtectedRoute } from '@/lib/authorization';
+import {
+    createBrowserRouter,
+    RouterProvider,
+    Navigate,
+    Outlet,
+} from 'react-router';
+
 import { DashboardLayout } from '@/components/layouts';
+import { paths } from '@/config/paths';
+import { ProtectedRoute } from '@/features/auth';
 
 export const AppRouter = () => {
     const router = createBrowserRouter([
         {
             path: '/',
-            element: <div>Home Page - <a href={paths.auth.login.getHref()}>Login</a></div>,
+            element: (
+                <div>
+                    Home Page - <a href={paths.auth.login.getHref()}>Login</a>
+                </div>
+            ),
         },
         {
             path: paths.auth.login.path,
@@ -26,21 +36,24 @@ export const AppRouter = () => {
         {
             path: paths.auth.forgotPassword.path,
             lazy: async () => {
-                const { ForgotPasswordPage } = await import('./routes/auth/forgot-password');
+                const { ForgotPasswordPage } =
+                    await import('./routes/auth/forgot-password');
                 return { Component: ForgotPasswordPage };
             },
         },
         {
             path: paths.auth.resetPassword.path,
             lazy: async () => {
-                const { ResetPasswordPage } = await import('./routes/auth/reset-password');
+                const { ResetPasswordPage } =
+                    await import('./routes/auth/reset-password');
                 return { Component: ResetPasswordPage };
             },
         },
         {
             path: paths.auth.verifyEmail.path,
             lazy: async () => {
-                const { VerifyEmailPage } = await import('./routes/auth/verify-email');
+                const { VerifyEmailPage } =
+                    await import('./routes/auth/verify-email');
                 return { Component: VerifyEmailPage };
             },
         },
@@ -57,7 +70,8 @@ export const AppRouter = () => {
                 {
                     index: true,
                     lazy: async () => {
-                        const { DashboardRoute } = await import('./routes/app/dashboard');
+                        const { DashboardRoute } =
+                            await import('./routes/app/dashboard');
                         return { Component: DashboardRoute };
                     },
                 },

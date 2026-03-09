@@ -1,18 +1,20 @@
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useLogin } from '@/lib/auth-provider';
+import { useMutation } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link } from '@/components/ui/link';
-import { paths } from '@/config/paths';
-import { useMutation } from '@tanstack/react-query';
-import { sendVerificationEmail } from '@/lib/auth';
 import { useNotifications } from '@/components/ui/notifications';
-import { loginInputSchema, type LoginInput } from '@/lib/auth-schemas';
+import { paths } from '@/config/paths';
+import { HttpStatus } from '@/types/http';
 
-import type { AxiosError } from 'axios';
+import { sendVerificationEmail } from '../api/auth';
+import { useLogin } from '../lib/auth-provider';
+import { loginInputSchema, type LoginInput } from '../types';
 
 type LoginFormProps = {
     onSuccess: () => void;
@@ -49,13 +51,14 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
 
     const onSubmit = (data: LoginInput) => {
         login.mutate(data, {
-            onError: (error: AxiosError) => {
-                const apiData = error.response?.data as {
+            onError: (error) => {
+                const axiosError = error as AxiosError;
+                const apiData = axiosError.response?.data as {
                     message?: string;
                     error?: string;
                 };
                 if (
-                    error.response?.status === 401 &&
+                    axiosError.response?.status === HttpStatus.UNAUTHORIZED &&
                     (apiData?.message?.includes('verified') ||
                         apiData?.error === 'EmailNotVerified')
                 ) {
